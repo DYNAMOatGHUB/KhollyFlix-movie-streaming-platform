@@ -187,22 +187,9 @@ function generateStreamingLinks(title, year) {
   };
 }
 
-async function openMoviePlayer(movieId, title) {
-  try {
-    // First try to find the trailer
-    const videoData = await fetchMovieVideos(movieId);
-    const trailer = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
-    
-    if (trailer && trailer.key) {
-      showTrailerModal(title, trailer.key);
-    } else {
-      // If no trailer, show streaming options
-      showStreamingOptions(movieId, title);
-    }
-  } catch (error) {
-    console.error('Error opening movie:', error);
-    showStreamingOptions(movieId, title);
-  }
+function openMoviePlayer(movieId, title) {
+  // Directly show streaming options without YouTube trailers
+  showStreamingOptions(movieId, title);
 }
 
 function showStreamingOptions(movieId, title) {
