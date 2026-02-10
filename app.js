@@ -155,121 +155,196 @@ function showStreamingOptions(movieId, title) {
   const modalTitle = document.getElementById('streaming-title');
   const optionsContent = document.getElementById('streaming-options');
   
-  optionsContent.innerHTML = `
-    <div class="loading-spinner">
-      <p>🔍 Finding available streams...</p>
-    </div>
-  `;
-  
-  modalTitle.textContent = title;
+  modalTitle.textContent = `🎬 Watch: ${title}`;
   modal.style.display = 'block';
   
-  // Get streaming links
-  const links = generateStreamingLinks(title);
-  
-  // Build streaming options UI
-  let html = '<div class="streams-list">';
-  
-  // Global Platforms
-  html += '<h3 class="platform-category">🌍 Global Platforms</h3>';
-  
-  html += `
-    <a href="${links.netflix}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">Netflix</h4>
-        <p class="stream-source">Premium subscription required</p>
+  // Build OTT platform grid
+  let html = `
+    <div class="ott-platform-grid">
+      <div class="ott-header">
+        <h3>Select a Platform to Browse</h3>
+        <p>All platforms available in one place</p>
       </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += `
-    <a href="${links.prime}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">Amazon Prime Video</h4>
-        <p class="stream-source">Prime subscription or rental</p>
+      
+      <div class="ott-category">
+        <h4 class="ott-category-title">🌍 Global Platforms</h4>
+        <div class="ott-cards">
+          <div class="ott-card" onclick="openOTTPlatform('netflix', '${title}')">
+            <div class="ott-logo">🎥</div>
+            <h4>Netflix</h4>
+            <p>Premium</p>
+          </div>
+          <div class="ott-card" onclick="openOTTPlatform('prime', '${title}')">
+            <div class="ott-logo">📦</div>
+            <h4>Prime Video</h4>
+            <p>Rental/Subscribe</p>
+          </div>
+          <div class="ott-card" onclick="openOTTPlatform('disney', '${title}')">
+            <div class="ott-logo">✨</div>
+            <h4>Disney+</h4>
+            <p>Premium</p>
+          </div>
+        </div>
       </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += `
-    <a href="${links.disney}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">Disney+</h4>
-        <p class="stream-source">Premium subscription</p>
+      
+      <div class="ott-category">
+        <h4 class="ott-category-title">🇮🇳 Indian OTT</h4>
+        <div class="ott-cards">
+          <div class="ott-card" onclick="openOTTPlatform('hotstar', '${title}')">
+            <div class="ott-logo">⭐</div>
+            <h4>Disney+ Hotstar</h4>
+            <p>Hindi, Tamil, Telugu</p>
+          </div>
+          <div class="ott-card" onclick="openOTTPlatform('sonyliv', '${title}')">
+            <div class="ott-logo">📺</div>
+            <h4>SonyLiv</h4>
+            <p>Hindi, Tamil</p>
+          </div>
+          <div class="ott-card" onclick="openOTTPlatform('sunnxt', '${title}')">
+            <div class="ott-logo">☀️</div>
+            <h4>Sun NXT</h4>
+            <p>Tamil, Telugu</p>
+          </div>
+        </div>
       </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  // Indian Platforms
-  html += '<h3 class="platform-category">🇮🇳 Indian & Tamil OTT</h3>';
-  
-  html += `
-    <a href="${links.hotstar}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">Disney+ Hotstar</h4>
-        <p class="stream-source">Hindi, Tamil, Telugu & more</p>
+      
+      <div class="ott-category">
+        <h4 class="ott-category-title">✨ Free Platforms</h4>
+        <div class="ott-cards">
+          <div class="ott-card" onclick="openOTTPlatform('tubi', '${title}')">
+            <div class="ott-logo">🎬</div>
+            <h4>Tubi TV</h4>
+            <p>10,000+ Free</p>
+          </div>
+          <div class="ott-card" onclick="openOTTPlatform('archive', '${title}')">
+            <div class="ott-logo">📚</div>
+            <h4>Internet Archive</h4>
+            <p>Public Domain</p>
+          </div>
+        </div>
       </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += `
-    <a href="${links.sonyliv}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">SonyLiv</h4>
-        <p class="stream-source">Hindi, Tamil, Marathi content</p>
-      </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += `
-    <a href="${links.sunnxt}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">Sun NXT</h4>
-        <p class="stream-source">Tamil, Telugu & South Indian</p>
-      </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  // Free Platforms
-  html += '<h3 class="platform-category">✨ Free with Ads</h3>';
-  
-  html += `
-    <a href="${links.tubi}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">🎬 Tubi TV</h4>
-        <p class="stream-source">10,000+ Free Movies</p>
-      </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += `
-    <a href="${links.archive}" target="_blank" rel="noopener noreferrer" class="stream-item">
-      <div class="stream-info">
-        <h4 class="stream-name">📚 Internet Archive</h4>
-        <p class="stream-source">Public Domain & Creative Commons</p>
-      </div>
-      <div class="stream-action">→</div>
-    </a>
-  `;
-  
-  html += '</div>';
-  
-  // Add info footer
-  html += `
-    <div class="streaming-footer">
-      <p>👆 Click any platform to search for this movie</p>
-      <p style="font-size: 0.8rem; color: #707080;">All links are 100% legal and ad-supported</p>
     </div>
   `;
   
   optionsContent.innerHTML = html;
+}
+
+function openOTTPlatform(platform, title) {
+  const modal = document.getElementById('streaming-modal');
+  const modalTitle = document.getElementById('streaming-title');
+  const optionsContent = document.getElementById('streaming-options');
+  
+  modalTitle.textContent = `${title} - Browse on ${getPlatformName(platform)}`;
+  
+  let html = `
+    <div class="ott-player-container">
+      <button class="back-btn" onclick="showStreamingOptions(null, '${title}')">← Back to Platforms</button>
+      <div class="ott-embed-wrapper">
+  `;
+  
+  // Generate embed for each platform
+  switch(platform) {
+    case 'tubi':
+      const tubiUrl = `https://tubitv.com/search?q=${encodeURIComponent(title)}`;
+      html += `<iframe src="${tubiUrl}" class="ott-iframe" title="Tubi TV"></iframe>`;
+      break;
+      
+    case 'archive':
+      const archiveUrl = `https://archive.org/advancedsearch.php?q=title:%22${encodeURIComponent(title)}%22&mediatype=movies&output=json`;
+      html += `<div class="ott-search-results" id="archive-results">Loading search results...</div>`;
+      break;
+      
+    case 'netflix':
+      const netflixUrl = `https://www.netflix.com/search?q=${encodeURIComponent(title)}`;
+      html += `<iframe src="${netflixUrl}" class="ott-iframe" title="Netflix"></iframe>`;
+      break;
+      
+    case 'prime':
+      const primeUrl = `https://www.amazon.com/s?k=${encodeURIComponent(title)}`;
+      html += `<iframe src="${primeUrl}" class="ott-iframe" title="Prime Video"></iframe>`;
+      break;
+      
+    case 'disney':
+      const disneyUrl = `https://www.disneyplus.com/search?q=${encodeURIComponent(title)}`;
+      html += `<iframe src="${disneyUrl}" class="ott-iframe" title="Disney+"></iframe>`;
+      break;
+      
+    case 'hotstar':
+      const hotstarUrl = `https://www.hotstar.com/search?query=${encodeURIComponent(title)}`;
+      html += `<iframe src="${hotstarUrl}" class="ott-iframe" title="Disney+ Hotstar"></iframe>`;
+      break;
+      
+    case 'sonyliv':
+      const sonylivUrl = `https://www.sonyliv.com/search/${encodeURIComponent(title)}`;
+      html += `<iframe src="${sonylivUrl}" class="ott-iframe" title="SonyLiv"></iframe>`;
+      break;
+      
+    case 'sunnxt':
+      const sunnxtUrl = `https://www.sunnxt.com/search/${encodeURIComponent(title)}`;
+      html += `<iframe src="${sunnxtUrl}" class="ott-iframe" title="Sun NXT"></iframe>`;
+      break;
+  }
+  
+  html += `
+      </div>
+    </div>
+  `;
+  
+  optionsContent.innerHTML = html;
+  
+  // Load archive results if needed
+  if(platform === 'archive') {
+    loadArchiveResults(title);
+  }
+}
+
+function loadArchiveResults(title) {
+  const resultsContainer = document.getElementById('archive-results');
+  const url = `https://archive.org/advancedsearch.php?q=title:%22${encodeURIComponent(title)}%22&mediatype=movies&output=json`;
+  
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if(data.response?.docs?.length > 0) {
+        let html = '<div class="archive-grid">';
+        data.response.docs.slice(0, 12).forEach(item => {
+          const itemUrl = `https://archive.org/details/${item.identifier}`;
+          html += `
+            <a href="${itemUrl}" target="_blank" class="archive-item">
+              <div class="archive-thumb">📹</div>
+              <h4>${item.title}</h4>
+              <p>${item.format?.[0]?.split(',')[0] || 'Video'}</p>
+            </a>
+          `;
+        });
+        html += '</div>';
+        resultsContainer.innerHTML = html;
+      } else {
+        resultsContainer.innerHTML = `
+          <div class="no-results">
+            <p>No results found on Internet Archive</p>
+            <p>Try a different search or visit archive.org directly</p>
+          </div>
+        `;
+      }
+    })
+    .catch(err => {
+      resultsContainer.innerHTML = `<p>Error loading results: ${err.message}</p>`;
+    });
+}
+
+function getPlatformName(platform) {
+  const names = {
+    netflix: 'Netflix',
+    prime: 'Prime Video',
+    disney: 'Disney+',
+    hotstar: 'Disney+ Hotstar',
+    sonyliv: 'SonyLiv',
+    sunnxt: 'Sun NXT',
+    tubi: 'Tubi TV',
+    archive: 'Internet Archive'
+  };
+  return names[platform] || platform;
 }
 
 function closeStreamingModal() {
