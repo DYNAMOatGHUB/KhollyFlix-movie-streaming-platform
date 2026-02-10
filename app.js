@@ -53,7 +53,7 @@ function renderMovieCard(movie) {
         <img src="${posterUrl}" alt="${movie.title} poster" class="movie-poster" loading="lazy">
         <div class="rating-badge">${ratingPercent}%</div>
         <div class="movie-overlay">
-          <button class="watch-btn" onclick="openTrailer(${movie.id}, '${movie.title.replace(/'/g, "\\'")}')">
+          <button class="watch-btn" onclick="openMoviePlayer(${movie.id}, '${movie.title.replace(/'/g, "\\'")}')">
             <span>▶</span> Watch Now
           </button>
         </div>
@@ -158,6 +158,114 @@ function closeTrailerModal() {
   videoFrame.src = '';
 }
 
+// Fetch free movies from Internet Archive
+async function searchFreeMovies(title) {
+  try {
+    const url = `https://archive.org/advancedsearch.php?q=title:%22${encodeURIComponent(title)}%22%20AND%20mediatype:movies&fl=identifier,title,description,format&output=json&rows=10`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to search Internet Archive');
+    return response.json();
+  } catch (error) {
+    console.error('Error searching free movies:', error);
+    return { response: { docs: [] } };
+  }
+}
+
+async function openMoviePlayer(movieId, title) {
+  try {
+    // First try to find the trailer
+    const videoData = await fetchMovieVideos(movieId);
+    const trailer = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    
+    if (trailer && trailer.key) {
+      showTrailerModal(title, trailer.key);
+    } else {
+      // If no trailer, search for free full movie
+      showStreamingOptions(movieId, title);
+    }
+  } catch (error) {
+    console.error('Error opening movie:', error);
+    showStreamingOptions(movieId, title);
+  }
+}
+
+function showStreamingOptions(movieId, title) {
+  const modal = document.getElementById('streaming-modal');
+  const modalTitle = document.getElementById('streaming-title');
+  const optionsContent = document.getElementById('streaming-options');
+  
+  optionsContent.innerHTML = `
+    <div class="loading-spinner">
+      <p>🔍 Searching for available streams...</p>
+    </div>
+  `;
+  
+  modalTitle.textContent = title;
+  modal.style.display = 'block';
+  
+  searchFreeMovies(title).then(data => {
+    const movies = data.response?.docs || [];
+    
+    if (movies.length === 0) {
+      optionsContent.innerHTML = `
+        <div class="no-streams">
+          <h3>No Free Streams Available</h3>
+          <p>This movie isn't available for free streaming, but you can:</p>
+          <ul>
+            <li>✅ Watch the official trailer</li>
+            <li>📚 Check streaming platforms (Netflix, Prime Video, etc)</li>
+            <li>🎬 Rent or buy from digital stores</li>
+          </ul>
+        </div>
+      `;
+      return;
+    }
+    
+    let html = '<div class="streams-list">';
+    movies.forEach((movie, index) => {
+      html += `
+        <div class="stream-item" onclick="playFromArchive('${movie.identifier}', '${movie.title}')">
+          <div class="stream-info">
+            <h4 class="stream-name">${movie.title || 'Unknown'}</h4>
+            <p class="stream-source">📖 Internet Archive</p>
+          </div>
+          <div class="stream-action">▶ Play</div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    
+    optionsContent.innerHTML = html;
+  });
+}
+
+function playFromArchive(identifier, title) {
+  const videoFrame = document.getElementById('archive-player');
+  const streamingModal = document.getElementById('streaming-modal');
+  const playerModal = document.getElementById('player-modal');
+  const playerTitle = document.getElementById('player-title');
+  
+  playerTitle.textContent = title;
+  
+  // Embed Internet Archive player
+  const embedUrl = `https://archive.org/embed/${identifier}`;
+  videoFrame.src = embedUrl;
+  
+  streamingModal.style.display = 'none';
+  playerModal.style.display = 'block';
+}
+
+function closeStreamingModal() {
+  document.getElementById('streaming-modal').style.display = 'none';
+}
+
+function closePlayerModal() {
+  const playerModal = document.getElementById('player-modal');
+  const videoFrame = document.getElementById('archive-player');
+  playerModal.style.display = 'none';
+  videoFrame.src = '';
+}
+
 function searchMovies(event) {
   event.preventDefault();
   const input = document.getElementById('search-input');
@@ -175,10 +283,13 @@ function clearSearch() {
 
 // Close modal when clicking outside
 window.addEventListener('click', (event) => {
-  const modal = document.getElementById('trailer-modal');
-  if (event.target === modal) {
-    closeTrailerModal();
-  }
+  const trailerModal = document.getElementById('trailer-modal');
+  const streamingModal = document.getElementById('streaming-modal');
+  const playerModal = document.getElementById('player-modal');
+  
+  if (event.target === trailerModal) closeTrailerModal();
+  if (event.target === streamingModal) closeStreamingModal();
+  if (event.target === playerModal) closePlayerModal();
 });
 
 // Initialize the app

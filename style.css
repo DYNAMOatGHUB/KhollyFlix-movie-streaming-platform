@@ -422,6 +422,127 @@ main {
   border-radius: 12px;
 }
 
+/* Streaming Options Styles */
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  color: #a0a0a0;
+}
+
+.loading-spinner p {
+  font-size: 1.2rem;
+  margin: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.no-streams {
+  padding: 2rem;
+  text-align: center;
+  color: #a0a0a0;
+}
+
+.no-streams h3 {
+  color: #ff6b6b;
+  margin: 0 0 1rem;
+}
+
+.no-streams ul {
+  list-style: none;
+  padding: 1rem 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.no-streams li {
+  padding: 0.5rem 0;
+  color: #d0d0d0;
+}
+
+.streams-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.stream-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem;
+  margin: 0.5rem 0;
+  background: rgba(30, 40, 70, 0.6);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stream-item:hover {
+  background: rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.6);
+  transform: translateX(10px);
+}
+
+.stream-info {
+  flex: 1;
+  text-align: left;
+}
+
+.stream-name {
+  margin: 0 0 0.5rem;
+  color: #f8f9ff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stream-source {
+  margin: 0;
+  color: #a0a0a0;
+  font-size: 0.85rem;
+}
+
+.stream-action {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-left: 1rem;
+}
+
+.player-modal-content {
+  max-width: 100%;
+  width: 95%;
+}
+
+.player-modal-body {
+  padding: 1.5rem;
+  aspect-ratio: 16/9;
+}
+
+@media (max-width: 768px) {
+  .stream-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stream-info {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .stream-action {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .player-modal-body {
+    min-height: 250px;
+    aspect-ratio: auto;
+  }
+}
+
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;
