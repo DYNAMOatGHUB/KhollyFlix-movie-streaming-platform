@@ -158,8 +158,9 @@ function showStreamingOptions(movieId, title) {
   modalTitle.textContent = `🎬 Watch: ${title}`;
   modal.style.display = 'block';
   
-  // Store current title for platform clicks
+  // Store current title globally
   window.currentMovieTitle = title;
+  window.currentMovieId = movieId;
   
   // Build OTT platform grid
   let html = `
@@ -172,17 +173,17 @@ function showStreamingOptions(movieId, title) {
       <div class="ott-category">
         <h4 class="ott-category-title">🌍 Global Platforms</h4>
         <div class="ott-cards">
-          <div class="ott-card" data-platform="netflix">
+          <div class="ott-card" data-platform="netflix" onclick="handlePlatformClick('netflix')">
             <div class="ott-logo">🎥</div>
             <h4>Netflix</h4>
             <p>Premium</p>
           </div>
-          <div class="ott-card" data-platform="prime">
+          <div class="ott-card" data-platform="prime" onclick="handlePlatformClick('prime')">
             <div class="ott-logo">📦</div>
             <h4>Prime Video</h4>
             <p>Rental/Subscribe</p>
           </div>
-          <div class="ott-card" data-platform="disney">
+          <div class="ott-card" data-platform="disney" onclick="handlePlatformClick('disney')">
             <div class="ott-logo">✨</div>
             <h4>Disney+</h4>
             <p>Premium</p>
@@ -193,17 +194,17 @@ function showStreamingOptions(movieId, title) {
       <div class="ott-category">
         <h4 class="ott-category-title">🇮🇳 Indian OTT</h4>
         <div class="ott-cards">
-          <div class="ott-card" data-platform="hotstar">
+          <div class="ott-card" data-platform="hotstar" onclick="handlePlatformClick('hotstar')">
             <div class="ott-logo">⭐</div>
             <h4>Disney+ Hotstar</h4>
             <p>Hindi, Tamil, Telugu</p>
           </div>
-          <div class="ott-card" data-platform="sonyliv">
+          <div class="ott-card" data-platform="sonyliv" onclick="handlePlatformClick('sonyliv')">
             <div class="ott-logo">📺</div>
             <h4>SonyLiv</h4>
             <p>Hindi, Tamil</p>
           </div>
-          <div class="ott-card" data-platform="sunnxt">
+          <div class="ott-card" data-platform="sunnxt" onclick="handlePlatformClick('sunnxt')">
             <div class="ott-logo">☀️</div>
             <h4>Sun NXT</h4>
             <p>Tamil, Telugu</p>
@@ -214,12 +215,12 @@ function showStreamingOptions(movieId, title) {
       <div class="ott-category">
         <h4 class="ott-category-title">✨ Free Platforms</h4>
         <div class="ott-cards">
-          <div class="ott-card" data-platform="tubi">
+          <div class="ott-card" data-platform="tubi" onclick="handlePlatformClick('tubi')">
             <div class="ott-logo">🎬</div>
             <h4>Tubi TV</h4>
             <p>10,000+ Free</p>
           </div>
-          <div class="ott-card" data-platform="archive">
+          <div class="ott-card" data-platform="archive" onclick="handlePlatformClick('archive')">
             <div class="ott-logo">📚</div>
             <h4>Internet Archive</h4>
             <p>Public Domain</p>
@@ -230,26 +231,22 @@ function showStreamingOptions(movieId, title) {
   `;
   
   optionsContent.innerHTML = html;
-  
-  // Attach event listeners to platform cards
-  document.querySelectorAll('.ott-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const platform = card.dataset.platform;
-      openOTTPlatform(platform, title);
-    });
-  });
+}
+
+function handlePlatformClick(platform) {
+  const title = window.currentMovieTitle;
+  openOTTPlatform(platform, title);
 }
 
 function openOTTPlatform(platform, title) {
-  const modal = document.getElementById('streaming-modal');
-  const modalTitle = document.getElementById('streaming-title');
   const optionsContent = document.getElementById('streaming-options');
+  const modalTitle = document.getElementById('streaming-title');
   
   modalTitle.textContent = `${title} - Browse on ${getPlatformName(platform)}`;
   
   let html = `
     <div class="ott-player-container">
-      <button class="back-btn" id="back-to-platforms">← Back to Platforms</button>
+      <button class="back-btn" onclick="showStreamingOptions(window.currentMovieId, window.currentMovieTitle)">← Back to Platforms</button>
       <div class="ott-embed-wrapper">
   `;
   
@@ -261,7 +258,6 @@ function openOTTPlatform(platform, title) {
       break;
       
     case 'archive':
-      const archiveUrl = `https://archive.org/advancedsearch.php?q=title:%22${encodeURIComponent(title)}%22&mediatype=movies&output=json`;
       html += `<div class="ott-search-results" id="archive-results">Loading search results...</div>`;
       break;
       
@@ -302,11 +298,6 @@ function openOTTPlatform(platform, title) {
   `;
   
   optionsContent.innerHTML = html;
-  
-  // Add back button functionality
-  document.getElementById('back-to-platforms').addEventListener('click', () => {
-    showStreamingOptions(null, title);
-  });
   
   // Load archive results if needed
   if(platform === 'archive') {
