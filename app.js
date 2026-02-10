@@ -171,6 +171,18 @@ async function searchFreeMovies(title) {
   }
 }
 
+// Generate links to legal streaming services
+function generateStreamingLinks(title, year) {
+  const encodedTitle = encodeURIComponent(title);
+  const titleQuery = title.replace(/[^a-zA-Z0-9]/g, ' ').trim();
+  
+  return {
+    tubi: `https://tubitv.com/search?q=${encodedTitle}`,
+    youtube: `https://www.youtube.com/results?search_query=${encodedTitle}+full+movie+free`,
+    archive: `https://archive.org/advancedsearch.php?q=title:%22${encodedTitle}%22&mediatype=movies`
+  };
+}
+
 async function openMoviePlayer(movieId, title) {
   try {
     // First try to find the trailer
@@ -180,7 +192,7 @@ async function openMoviePlayer(movieId, title) {
     if (trailer && trailer.key) {
       showTrailerModal(title, trailer.key);
     } else {
-      // If no trailer, search for free full movie
+      // If no trailer, show streaming options
       showStreamingOptions(movieId, title);
     }
   } catch (error) {
@@ -196,74 +208,67 @@ function showStreamingOptions(movieId, title) {
   
   optionsContent.innerHTML = `
     <div class="loading-spinner">
-      <p>🔍 Searching for available streams...</p>
+      <p>🔍 Finding available streams...</p>
     </div>
   `;
   
   modalTitle.textContent = title;
   modal.style.display = 'block';
   
-  searchFreeMovies(title).then(data => {
-    const movies = data.response?.docs || [];
-    
-    if (movies.length === 0) {
-      optionsContent.innerHTML = `
-        <div class="no-streams">
-          <h3>No Free Streams Available</h3>
-          <p>This movie isn't available for free streaming, but you can:</p>
-          <ul>
-            <li>✅ Watch the official trailer</li>
-            <li>📚 Check streaming platforms (Netflix, Prime Video, etc)</li>
-            <li>🎬 Rent or buy from digital stores</li>
-          </ul>
-        </div>
-      `;
-      return;
-    }
-    
-    let html = '<div class="streams-list">';
-    movies.forEach((movie, index) => {
-      html += `
-        <div class="stream-item" onclick="playFromArchive('${movie.identifier}', '${movie.title}')">
-          <div class="stream-info">
-            <h4 class="stream-name">${movie.title || 'Unknown'}</h4>
-            <p class="stream-source">📖 Internet Archive</p>
-          </div>
-          <div class="stream-action">▶ Play</div>
-        </div>
-      `;
-    });
-    html += '</div>';
-    
-    optionsContent.innerHTML = html;
-  });
-}
-
-function playFromArchive(identifier, title) {
-  const videoFrame = document.getElementById('archive-player');
-  const streamingModal = document.getElementById('streaming-modal');
-  const playerModal = document.getElementById('player-modal');
-  const playerTitle = document.getElementById('player-title');
+  // Get streaming links
+  const links = generateStreamingLinks(title);
   
-  playerTitle.textContent = title;
+  // Build streaming options UI
+  let html = '<div class="streams-list">';
   
-  // Embed Internet Archive player
-  const embedUrl = `https://archive.org/embed/${identifier}`;
-  videoFrame.src = embedUrl;
+  // Tubi option
+  html += `
+    <a href="${links.tubi}" target="_blank" rel="noopener noreferrer" class="stream-item">
+      <div class="stream-info">
+        <h4 class="stream-name">🎬 Tubi TV</h4>
+        <p class="stream-source">10,000+ Free Movies with Ads</p>
+      </div>
+      <div class="stream-action">→ Open</div>
+    </a>
+  `;
   
-  streamingModal.style.display = 'none';
-  playerModal.style.display = 'block';
+  // YouTube option
+  html += `
+    <a href="${links.youtube}" target="_blank" rel="noopener noreferrer" class="stream-item">
+      <div class="stream-info">
+        <h4 class="stream-name">▶ YouTube</h4>
+        <p class="stream-source">Official Free & Paid Movies</p>
+      </div>
+      <div class="stream-action">→ Open</div>
+    </a>
+  `;
+  
+  // Internet Archive option
+  html += `
+    <a href="${links.archive}" target="_blank" rel="noopener noreferrer" class="stream-item">
+      <div class="stream-info">
+        <h4 class="stream-name">📚 Internet Archive</h4>
+        <p class="stream-source">Public Domain & Creative Commons</p>
+      </div>
+      <div class="stream-action">→ Open</div>
+    </a>
+  `;
+  
+  html += '</div>';
+  
+  // Add info footer
+  html += `
+    <div class="streaming-footer">
+      <p>👆 Click any platform to search for this movie</p>
+      <p style="font-size: 0.8rem; color: #707080;">All links are 100% legal and ad-supported</p>
+    </div>
+  `;
+  
+  optionsContent.innerHTML = html;
 }
 
 function closeStreamingModal() {
   document.getElementById('streaming-modal').style.display = 'none';
-}
-
-function closePlayerModal() {
-  const playerModal = document.getElementById('player-modal');
-  const videoFrame = document.getElementById('archive-player');
-  playerModal.style.display = 'none';
-  videoFrame.src = '';
 }
 
 function searchMovies(event) {
@@ -285,11 +290,9 @@ function clearSearch() {
 window.addEventListener('click', (event) => {
   const trailerModal = document.getElementById('trailer-modal');
   const streamingModal = document.getElementById('streaming-modal');
-  const playerModal = document.getElementById('player-modal');
   
   if (event.target === trailerModal) closeTrailerModal();
   if (event.target === streamingModal) closeStreamingModal();
-  if (event.target === playerModal) closePlayerModal();
 });
 
 // Initialize the app
